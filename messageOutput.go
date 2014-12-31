@@ -22,15 +22,15 @@ func Write(message string) {
 	WriteInfo(message)
 }
 
-func WriteInfo(message string) {
+func WriteInfo(message interface{}) {
   fmt.Println("INFO", message)
 }
-func WriteWarn(message string) {
+func WriteWarn(message interface{}) {
   fmt.Println("WARN", message)
 }
-func WriteError(message string) {
+func WriteError(message interface{}) {
   fmt.Println("ERROR", message)
 }
-func WriteDebug(message string) {
+func WriteDebug(message interface{}) {
   fmt.Println("DEBUG", message)
 }
