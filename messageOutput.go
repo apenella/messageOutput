@@ -1,67 +1,82 @@
 /*
+  Message: Message is a way to manage al message from your system controling its output depending a loglevel configuration
+  The log level system follow next values:
+    0: info
+    1: warn
+    2: error
+    3: debug
+
+  files:
+  -message
 */
 
 package message 
 
 import (
   "fmt"
+  "time"
 )
 
+// The Message object used by sigleton pattern
+var msg *Message = nil
+// Constants definitions
+const INFO int = 0
+const WARN int = 1
+const ERROR int = 2
+const DEBUG int = 3
 
-var msg *message = nil
+const layout = "2006-01-02 15:04:00"
 
-var INFO int = 0
-var WARN int = 1
-var ERROR int = 2
-var DEBUG int = 3
-
-// Define the message object
-/*
-  mode
-    0: info
-    1: warn
-    2: error
-    3: debug
-*/
-type message struct {
+// Message its an object which contains all the atributes to manage the message writes into channel
+type Message struct {
   mChan chan []interface{}
   quitChan chan bool
-  logMode int
+  logLevel int
 }
 
+//
+// Specific methods
+//---------------------------------------------------------------------
 
-
-func GetInstance(l int) *message {
+// GetInstance return an instance of the object Message. If no instance has been created, a new one is created
+func GetInstance(l int) *Message {
   if msg == nil {
+    // The info loglevel is set if an incorrect value would be configured
     if l < 0 || l > 3 { l = 0 }
-    msg = new(message)
+
+    msg = new(Message)
     c := make(chan []interface{})
     q := make(chan bool)
 
-    msg = &message{
+    msg = &Message{
       mChan: c,
       quitChan: q,
-      logMode: l,
+      logLevel: l,
     }
-    go printMachine()
+    // Starting the print machine
+    go msg.printMachine()
 
   }else{
-    msg.SetLogMode(l)
+    msg.SetLogLevel(l)
   }
 
   return msg
 }
 
-func (m *message) DestroyInstance(){
+//
+// DestroyInstance method stops the printMachine
+func (m *Message) DestroyInstance(){
   msg.quitChan <- true
 }
-
-func (m *message) SetLogMode(l int){
+//
+// SetLogLevel method set the loglevel to the gived one
+func (m *Message) SetLogLevel(l int){
   if l < 0 || l > 3 { l = 0 }
-  m.logMode = l
+  m.logLevel = l
 }
-
-func printMachine(){
+//
+// printMachine method waits for messages to write till the instance is destroyed
+func (m *Message) printMachine(){
   fi := false
   for ;!fi; {
   select{
@@ -71,40 +86,53 @@ func printMachine(){
       fi = true
     }
   }
-  
+  // close channels
   defer close(msg.mChan)
   defer close(msg.quitChan)
 }
 
-
-func (m *message) TestWrite(msg... interface{}){
+//
+// WriteCh always send a message to be written
+func (m *Message) WriteCh(msg... interface{}){
   m.mChan <- msg
 }
-func (m *message) TestWriteInfo(msg... interface{}){
-  if m.logMode >= INFO {
-      m.mChan <- append([]interface{}{"INFO:"},msg...)
+//
+// WriteChInfo send a message to be written by printMachine if the loglevel is greater or equal to info
+func (m *Message) WriteChInfo(msg... interface{}){
+  if m.logLevel >= INFO {
+      t := time.Now()
+      m.mChan <- append([]interface{}{t.Format(layout)," INFO:"},msg...)
   }
 }
-func (m *message) TestWriteWarn(msg... interface{}){
-  if m.logMode >= WARN {
-      m.mChan <- append([]interface{}{"WARN:"},msg...)
+//
+// WriteChWarn send a message to be written by printMachine if the loglevel is greater or equal to warn
+func (m *Message) WriteChWarn(msg... interface{}){
+  if m.logLevel >= WARN {
+      t := time.Now()
+      m.mChan <- append([]interface{}{t.Format(layout)," WARN:"},msg...)
   }
 }
-func (m *message) TestWriteError(msg... interface{}){
-  if m.logMode >= ERROR {
-      m.mChan <- append([]interface{}{"ERROR:"},msg...)
+//
+// WriteChError send a message to be written by printMachine if the loglevel is greater or equal to error
+func (m *Message) WriteChError(msg... interface{}){
+  if m.logLevel >= ERROR {
+      t := time.Now()
+      m.mChan <- append([]interface{}{t.Format(layout)," ERROR:"},msg...)
   }
 }
-func (m *message) TestWriteDebug(msg... interface{}){
-  if m.logMode >= DEBUG {
-      m.mChan <- append([]interface{}{"DEBUG:"},msg...)
+//
+// WriteChDebug send a message to be written by printMachine if the loglevel is greater or equal to debug
+func (m *Message) WriteChDebug(msg... interface{}){
+  if m.logLevel >= DEBUG {
+      t := time.Now()
+      m.mChan <- append([]interface{}{t.Format(layout)," DEBUG:"},msg...)
   }
 }
+
 
 func Write(message string) {
 	fmt.Println(message)
 }
-
 func WriteInfo(message interface{}) {
   fmt.Println("INFO", message)
 }
