@@ -63,25 +63,30 @@ type Message struct {
 // generate a new Message object
 func New(l int, w io.Writer, f int) *Message {
 
-  if ( msg == nil ){
-    // The info loglevel is set if an incorrect value would be configured
-    if l < 0 || l > 3 { l = 0 }
-    if w == nil { w = os.Stdout }
+  // The info loglevel is set if an incorrect value would be configured
+  if l < 0 || l > 3 { l = 0 }
+  if w == nil { w = os.Stdout }
 
-    msg = &Message {
-      Writer: w,
-      logInfo: log.New(w, "[INFO] ",f),
-      logWarn: log.New(w, "[WARN] ",f),
-      logError: log.New(w, "[ERROR] ",f),
-      logDebug: log.New(w, "[DEBUG] ",f),
-      mChan: make(chan []interface{}),
-      quitChan: make(chan bool),
-      logLevel: l,
-    }
+  return &Message {
+    Writer: w,
+    logInfo: log.New(w, "[INFO] ",f),
+    logWarn: log.New(w, "[WARN] ",f),
+    logError: log.New(w, "[ERROR] ",f),
+    logDebug: log.New(w, "[DEBUG] ",f),
+    mChan: make(chan []interface{}),
+    quitChan: make(chan bool),
+    logLevel: l,
   }
-  return msg
 }
 
+// GetMessager message
+func GetMessager() *Message {
+  if ( msg == nil ){
+    msg = New(0,nil,0)
+  }
+
+  return msg
+}
 
 // GetInstance: return an instance of the object Message. If no instance has been created, a new one is created
 func GetInstance(l int) *Message {
