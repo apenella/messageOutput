@@ -1,0 +1,8 @@
+# vendor
+vendor/
+
+# lock
+*.lock
+
+# logs
+*.log

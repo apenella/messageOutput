@@ -10,7 +10,7 @@
   -message
 */
 
-package message 
+package message
 
 import (
   "fmt"
@@ -51,7 +51,7 @@ type Message struct {
   // ERROR: 2
   // DEBUG: 3
   logLevel int
-  
+
   // channel to write messages
   mChan chan []interface{}
   // channel to quit from print machine
@@ -62,21 +62,26 @@ type Message struct {
 //
 // generate a new Message object
 func New(l int, w io.Writer, f int) *Message {
-  // The info loglevel is set if an incorrect value would be configured
-  if l < 0 || l > 3 { l = 0 }
-  if w == nil { w = os.Stdout }
- 
-  return &Message {
-    Writer: w,
-    logInfo: log.New(w, "[INFO] ",f),
-    logWarn: log.New(w, "[WARN] ",f),
-    logError: log.New(w, "[ERROR] ",f),
-    logDebug: log.New(w, "[DEBUG] ",f),
-    mChan: make(chan []interface{}),
-    quitChan: make(chan bool),
-    logLevel: l,
+
+  if ( msg == nil ){
+    // The info loglevel is set if an incorrect value would be configured
+    if l < 0 || l > 3 { l = 0 }
+    if w == nil { w = os.Stdout }
+
+    msg = &Message {
+      Writer: w,
+      logInfo: log.New(w, "[INFO] ",f),
+      logWarn: log.New(w, "[WARN] ",f),
+      logError: log.New(w, "[ERROR] ",f),
+      logDebug: log.New(w, "[DEBUG] ",f),
+      mChan: make(chan []interface{}),
+      quitChan: make(chan bool),
+      logLevel: l,
+    }
   }
+  return msg
 }
+
 
 // GetInstance: return an instance of the object Message. If no instance has been created, a new one is created
 func GetInstance(l int) *Message {
@@ -119,7 +124,7 @@ func (m *Message) SetLogLevel(l int){
 //
 // printMachine method waits for messages to write till the instance is destroyed
 func (m *Message) printMachine(){
-  
+
   fi := false
   for ;!fi; {
   select{
