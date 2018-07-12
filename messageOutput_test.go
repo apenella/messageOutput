@@ -37,6 +37,19 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, w.buff[0:len(w.buff)-1], []byte("[INFO] [hi!]"), "")
 }
 
+func TestGetMessager(t *testing.T) {
+	w := &MockWriter{
+		buff: []byte{},
+	}
+	m := New(3,w,0)
+	m.Info("hi!")
+	assert.Equal(t, w.buff[0:len(w.buff)-1], []byte("[INFO] [hi!]"), "")
+
+	m2 := GetMessager()
+	m2.Warn("hi!")
+	assert.Equal(t, w.buff[0:len(w.buff)-1], []byte("[WARN] [hi!]"), "")
+}
+
 // test Writers
 func TestInfo(t *testing.T) {
 	w := &MockWriter{

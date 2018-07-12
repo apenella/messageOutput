@@ -67,7 +67,7 @@ func New(l int, w io.Writer, f int) *Message {
   if l < 0 || l > 3 { l = 0 }
   if w == nil { w = os.Stdout }
 
-  return &Message {
+  msg = &Message {
     Writer: w,
     logInfo: log.New(w, "[INFO] ",f),
     logWarn: log.New(w, "[WARN] ",f),
@@ -77,12 +77,15 @@ func New(l int, w io.Writer, f int) *Message {
     quitChan: make(chan bool),
     logLevel: l,
   }
+
+  return msg
 }
 
 // GetMessager message
 func GetMessager() *Message {
-  if ( msg == nil ){
-    msg = New(0,nil,0)
+  if msg == nil {
+    fmt.Println("kk")
+    msg = New(0, nil, 0)
   }
 
   return msg
