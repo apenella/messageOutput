@@ -84,7 +84,6 @@ func New(l int, w io.Writer, f int) *Message {
 // GetMessager message
 func GetMessager() *Message {
   if msg == nil {
-    fmt.Println("kk")
     msg = New(0, nil, 0)
   }
 
